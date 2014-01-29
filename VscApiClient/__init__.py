@@ -171,6 +171,6 @@ class VscApiClient():
         except dns.resolver.NXDOMAIN:
             # no SRV record found. We'll try to use plain DNS name
             if port is not None:
-                self.addrs = [(hostname, port)]
+                return [(hostname, port)]
             else:
-                self.addrs = [(hostname, DEFAULT_TCP_PORT)]
+                return [(hostname, DEFAULT_TCP_PORT)]
