@@ -1,0 +1,13 @@
+Source: python-vsc
+Section: python
+Priority: extra
+Maintainer: Aleksey Morarash <aleksey.morarash@massivesolutions.eu>
+Build-Depends: debhelper (>= 8.0.0), python, python-setuptools
+XS-Python-Version: 2.7
+Standards-Version: 3.9.3
+
+Package: python-vsc
+Architecture: all
+Depends: python, python-ipaddr, python-dnspython
+Description: Client for VSC Core HTTP API
+ Client for VSC Core HTTP API.

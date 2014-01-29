@@ -1,0 +1,8 @@
+*~
+*.log
+*.pyc
+*.pyo
+figure_*.png
+doc/*.html
+build
+*.egg-info
