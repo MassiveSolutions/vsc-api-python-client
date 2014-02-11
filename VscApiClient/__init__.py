@@ -10,7 +10,9 @@ import random
 import urllib
 import urllib2
 
-from .errors import *
+from .errors import NotAuthorizedError
+from .errors import NotFoundError
+from .errors import NoAliveServersError
 
 # ----------------------------------------------------------------------
 # local definitions
@@ -162,7 +164,10 @@ class VscApiClient():
             encoded_args = json.dumps(args)
             request.add_header('Content-Length', len(encoded_args))
             request.add_data(encoded_args)
-        reply = urllib2.urlopen(request, timeout = self.timeout)
+        try:
+            reply = urllib2.urlopen(request, timeout = self.timeout)
+        except urllib2.HTTPError:
+            raise NotFoundError()
         reply_data = reply.read()
         if reply_data is not None:
             return json.loads(reply_data)
