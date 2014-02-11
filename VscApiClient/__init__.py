@@ -113,6 +113,24 @@ class VscApiClient():
         """
         return self._request('POST', '')
 
+    def aaaListUsers(self):
+        """
+        Return a list of UUIDs of all users.
+
+        :rtype: list of strings
+        """
+        return self._request('GET', 'aaa/user')
+
+    def aaaGetUserData(self, user_id):
+        """
+        Return user data dictionary.
+
+        :param user_id: UUID of the user.
+        :type user_id: string
+        :rtype: dict
+        """
+        return self._request('GET', 'aaa/user/{0}'.format(user_id))
+
     def aaaListRoles(self):
         """
         Return a list of UUIDs of all roles.
