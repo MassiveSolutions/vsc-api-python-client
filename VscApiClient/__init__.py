@@ -9,6 +9,7 @@ import dns.resolver
 import random
 import urllib
 import urllib2
+import uuid
 
 from .errors import NoAliveServersError
 from .errors import NotAuthorizedError
@@ -107,11 +108,45 @@ class VscApiClient():
     # -----------------------------------------------------------------
     # AAA methods
 
-    def aaaAddUser(self, userdata):
+    def aaaAddUser(self, data, user_id = None):
         """
-        Create a new VSC user
+        Create a new VSC user.
+        On success return UUID of the user created.
+
+        :param data: user data dictionary.
+        :type data: dict
+        :param user_id: unique ID for the new user.
+        :type user_id: string or None
+        :rtype: string
         """
-        return self._request('POST', '')
+        if user_id is None:
+            user_id = uuid.uuid4().hex
+        url_path = 'aaa/user/{0}?create=1'.format(user_id)
+        self._request('PUT', url_path, data)
+        return user_id
+
+    def aaaUpdateUser(self, user_id, data):
+        """
+        Update the VSC user info.
+
+        :param user_id: unique ID for the user.
+        :type user_id: string
+        :param data: user data dictionary.
+        :type data: dict
+        """
+        self._request('PUT', 'aaa/user/{0}'.format(user_id), data)
+
+    def aaaPasswd(self, password):
+        """
+        Change the password for the current user.
+        After success the Client must be reconfigured with
+        setAuth() method to apply the new password for a
+        next request.
+
+        :param password: new password for the user.
+        :type password: string
+        """
+        self._request('PUT', 'aaa/passwd', password)
 
     def aaaListUsers(self):
         """
@@ -130,6 +165,34 @@ class VscApiClient():
         :rtype: dict
         """
         return self._request('GET', 'aaa/user/{0}'.format(user_id))
+
+    def aaaAddRole(self, data, role_id = None):
+        """
+        Create a new VSC role.
+        On success return UUID of the role created.
+
+        :param data: role data dictionary.
+        :type data: dict
+        :param role_id: unique ID for the new role.
+        :type role_id: string or None
+        :rtype: string
+        """
+        if role_id is None:
+            role_id = uuid.uuid4().hex
+        url_path = 'aaa/role/{0}?create=1'.format(role_id)
+        self._request('PUT', url_path, data)
+        return role_id
+
+    def aaaUpdateRole(self, role_id, data):
+        """
+        Update the VSC role info.
+
+        :param user_id: unique ID for the new user.
+        :type user_id: string
+        :param data: user data dictionary.
+        :type data: dict
+        """
+        self._request('PUT', 'aaa/role/{0}'.format(role_id), data)
 
     def aaaListRoles(self):
         """
