@@ -117,6 +117,16 @@ class VscApiClient():
         """
         return self._request('GET', 'aaa/role')
 
+    def aaaGetRoleData(self, role_id):
+        """
+        Return role data dictionary.
+
+        :param role_id: UUID of the role.
+        :type role_id: string
+        :rtype: dict
+        """
+        return self._request('GET', 'aaa/role/{0}'.format(role_id))
+
     # -----------------------------------------------------------------
     # Internal methods
     # -----------------------------------------------------------------
