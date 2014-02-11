@@ -10,9 +10,11 @@ import random
 import urllib
 import urllib2
 
+from .errors import NoAliveServersError
 from .errors import NotAuthorizedError
 from .errors import NotFoundError
-from .errors import NoAliveServersError
+from .errors import BadArgError
+from .errors import UnknownError
 
 # ----------------------------------------------------------------------
 # local definitions
@@ -166,8 +168,15 @@ class VscApiClient():
             request.add_data(encoded_args)
         try:
             reply = urllib2.urlopen(request, timeout = self.timeout)
-        except urllib2.HTTPError:
-            raise NotFoundError()
+        except urllib2.HTTPError as exc:
+            if exc.code == 401:
+                raise NotAuthorizedError(exc.reason)
+            elif exc.code == 404:
+                raise NotFoundError(exc.reason)
+            elif exc.code == 406:
+                raise BadArgError(exc.reason)
+            else:
+                raise UnknownError(exc.code, exc.reason)
         reply_data = reply.read()
         if reply_data is not None:
             return json.loads(reply_data)
