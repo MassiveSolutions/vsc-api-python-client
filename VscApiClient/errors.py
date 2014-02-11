@@ -8,16 +8,16 @@ class Error(Exception):
     pass
 
 
-class NotAuthorizedError(Error):
+class NoAliveServersError(Error):
     """
-    User isn't authorized to perform the action.
+    There is no alive servers to make request.
     """
     pass
 
 
-class InternalServerError(Error):
+class NotAuthorizedError(Error):
     """
-    Internal server exception.
+    User isn't authorized to perform the action.
     """
     pass
 
@@ -29,8 +29,22 @@ class NotFoundError(Error):
     pass
 
 
-class NoAliveServersError(Error):
+class BadArgError(Error):
     """
-    There is no alive servers to make request.
+    Invalid argument.
+    """
+    pass
+
+
+class InternalServerError(Error):
+    """
+    Internal server exception.
+    """
+    pass
+
+
+class UnknownError(Error):
+    """
+    Exception which never shouldn't ocurred.
     """
     pass
