@@ -20,7 +20,11 @@ DEFAULT_TCP_PORT = 8914
 DEFAULT_TIMEOUT = 5
 SRV_PREFIX = '_vsc-api-server._tcp.'
 
+
 class VscApiClient():
+    """
+    VSC API Client implementation.
+    """
 
     addrs = []
     secure = True
@@ -71,7 +75,7 @@ class VscApiClient():
             else:
                 self.addrs = [(hostname, DEFAULT_TCP_PORT)]
         except Exception:
-            self.addrs = self._resolve(hostname, port)
+            self.addrs = _resolve(hostname, port)
 
     def setAuth(self, username, password):
         """
@@ -103,7 +107,7 @@ class VscApiClient():
         """
         Create a new VSC user
         """
-        return self._request('POST')
+        return self._request('POST', '')
 
     def aaaListRoles(self):
         """
@@ -153,26 +157,27 @@ class VscApiClient():
         if reply_data is not None:
             return json.loads(reply_data)
 
-    def _resolve(self, hostname, port):
-        """
-        Resolve DNS name to VSC API endpoint addresses.
 
-        :param hostname: DNS name to resolve.
-        :type hostname: string
-        :param port: TCP port number to use.
-        :type port: integer between 1 and 65535
-        :rtype: list of (host, port) tuples
-        """
-        if hostname.startswith(SRV_PREFIX):
-            srvname = hostname
+def _resolve(hostname, port):
+    """
+    Resolve DNS name to VSC API endpoint addresses.
+
+    :param hostname: DNS name to resolve.
+    :type hostname: string
+    :param port: TCP port number to use.
+    :type port: integer between 1 and 65535
+    :rtype: list of (host, port) tuples
+    """
+    if hostname.startswith(SRV_PREFIX):
+        srvname = hostname
+    else:
+        srvname = SRV_PREFIX + hostname
+    try:
+        return [(item.target.to_text().strip('.'), item.port)
+                for item in dns.resolver.query(srvname, 'srv')]
+    except dns.resolver.NXDOMAIN:
+        # no SRV record found. We'll try to use plain DNS name
+        if port is not None:
+            return [(hostname, port)]
         else:
-            srvname = SRV_PREFIX + hostname
-        try:
-            return [(item.target.to_text().strip('.'), item.port)
-                    for item in dns.resolver.query(srvname, 'srv')]
-        except dns.resolver.NXDOMAIN:
-            # no SRV record found. We'll try to use plain DNS name
-            if port is not None:
-                return [(hostname, port)]
-            else:
-                return [(hostname, DEFAULT_TCP_PORT)]
+            return [(hostname, DEFAULT_TCP_PORT)]
