@@ -2,6 +2,7 @@
 Client for VSC API.
 """
 
+import base64
 import json
 import ipaddr
 import dns.resolver
@@ -139,8 +140,9 @@ class VscApiClient():
         request.get_method = lambda: method
         request.add_header('User-Agent', 'VscApiPythonClient')
         if self.username is not None and self.password is not None:
-            request.add_header('X-VSC-Login', self.username)
-            request.add_header('X-VSC-Password', self.password)
+            plain_ident = '{0}:{1}'.format(self.username, self.password)
+            encoded_ident = base64.b64encode(plain_ident)
+            request.add_header('Authorization', 'Basic ' + encoded_ident)
         if args is not None and method in ('POST', 'PUT'):
             request.add_header('Content-Type', 'application/json')
             encoded_args = json.dumps(args)
