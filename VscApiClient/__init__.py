@@ -146,7 +146,7 @@ class VscApiClient():
         :param password: new password for the user.
         :type password: string
         """
-        self._request('PUT', 'aaa/passwd', password)
+        self._request('POST', 'aaa/passwd', password)
 
     def aaaListUsers(self):
         """
