@@ -194,6 +194,15 @@ class VscApiClient():
         """
         self._request('PUT', 'aaa/role/{0}'.format(role_id), data)
 
+    def aaaDelRole(self, role_id):
+        """
+        Remove the VSC role identified by the UUID.
+
+        :param role_id: UUID of the role.
+        :type role_id: string
+        """
+        self._request('DELETE', 'aaa/role/{0}'.format(role_id))
+
     def aaaListRoles(self):
         """
         Return a list of UUIDs of all roles.
@@ -211,6 +220,105 @@ class VscApiClient():
         :rtype: dict
         """
         return self._request('GET', 'aaa/role/{0}'.format(role_id))
+
+    def aaaAddRoleRoleRelation(self, major_id, minor_id):
+        """
+        Add a directional relation between the two roles.
+        The roles must exist before performing the operation.
+        The operation is idempotent.
+
+        :param major_id: UUID of the major role.
+        :type major_id: string
+        :param minor_id: UUID of the minor role.
+        :type minor_id: string
+        """
+        url_path = 'aaa/role/{0}/minors/{1}'.format(major_id, minor_id)
+        self._request('PUT', url_path)
+
+    def aaaDelRoleRoleRelation(self, major_id, minor_id):
+        """
+        Remove the directional relation between the two roles.
+        It's not an error to supply the roles not assigned with
+        each other so the operation is idempotent.
+
+        :param major_id: UUID of the major role.
+        :type major_id: string
+        :param minor_id: UUID of the minor role.
+        :type minor_id: string
+        """
+        url_path = 'aaa/role/{0}/minors/{1}'.format(major_id, minor_id)
+        self._request('DELETE', url_path)
+
+    def aaaListRoleMinors(self, major_id):
+        """
+        Return a list of minor roles for the role.
+
+        :param role_id: UUID of the role.
+        :type role_id: string
+        :rtype: list of UUIDs (list of strings)
+        """
+        url_path = 'aaa/role/{0}/minors'.format(major_id)
+        return self._request('GET', url_path)
+
+    def aaaListRoleMajors(self, minor_id):
+        """
+        Return a list of major roles for the role.
+
+        :param role_id: UUID of the role.
+        :type role_id: string
+        :rtype: list of UUIDs (list of strings)
+        """
+        url_path = 'aaa/role/{0}/majors'.format(minor_id)
+        return self._request('GET', url_path)
+
+    def aaaAddUserRoleRelation(self, user_id, role_id):
+        """
+        Add a user-to-role relation.
+        The user and the role must exist before the operation.
+        The operation is idempotent.
+
+        :param user_id: UUID of the user.
+        :type user_id: string
+        :param role_id: UUID of the role.
+        :type role_id: string
+        """
+        url_path = 'aaa/user/{0}/roles/{1}'.format(user_id, role_id)
+        self._request('PUT', url_path)
+
+    def aaaDelUserRoleRelation(self, user_id, role_id):
+        """
+        Remove the user-to-role relation.
+        The operation is idempotent.
+
+        :param user_id: UUID of the user.
+        :type user_id: string
+        :param role_id: UUID of the role.
+        :type role_id: string
+        """
+        url_path = 'aaa/user/{0}/roles/{1}'.format(user_id, role_id)
+        self._request('DELETE', url_path)
+
+    def aaaListUserRoles(self, user_id):
+        """
+        Return a list of roles assigned to the user.
+
+        :param user_id: UUID of the user.
+        :type user_id: string
+        :rtype: list of UUIDs (list of strings)
+        """
+        url_path = 'aaa/user/{0}/roles'.format(user_id)
+        return self._request('GET', url_path)
+
+    def aaaListRoleUsers(self, role_id):
+        """
+        Return a list of users assigned to the role.
+
+        :param role_id: UUID of the role.
+        :type role_id: string
+        :rtype: list of UUIDs (list of strings)
+        """
+        url_path = 'aaa/role/{0}/users'.format(role_id)
+        return self._request('GET', url_path)
 
     # -----------------------------------------------------------------
     # Internal methods
