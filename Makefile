@@ -3,7 +3,7 @@
 all:
 
 clean:
-	find . \( -name \*~ -o -name \*.pyc \) -delete
+	find . -name '*.py[co]' -delete
 	rm -rf -- build *.egg-info
 	$(MAKE) -C doc $@
 
