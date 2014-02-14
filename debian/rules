@@ -6,3 +6,5 @@ export DH_OPTIONS
 
 %:
 	dh $@
+
+override_dh_pysupport:
