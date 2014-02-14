@@ -15,6 +15,13 @@ class NoAliveServersError(Error):
     pass
 
 
+class NotAuthenticatedError(Error):
+    """
+    Authentication failed.
+    """
+    pass
+
+
 class NotAuthorizedError(Error):
     """
     User isn't authorized to perform the action.
@@ -39,12 +46,5 @@ class BadArgError(Error):
 class InternalServerError(Error):
     """
     Internal server exception.
-    """
-    pass
-
-
-class UnknownError(Error):
-    """
-    Exception which never shouldn't ocurred.
     """
     pass

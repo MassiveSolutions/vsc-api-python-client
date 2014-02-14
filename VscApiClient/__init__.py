@@ -11,11 +11,7 @@ import urllib
 import urllib2
 import uuid
 
-from .errors import NoAliveServersError
-from .errors import NotAuthorizedError
-from .errors import NotFoundError
-from .errors import BadArgError
-from .errors import UnknownError
+from .errors import *
 
 # ----------------------------------------------------------------------
 # local definitions
@@ -332,7 +328,8 @@ class VscApiClient():
         :type method: string
         :param path: resource path
         :type path: string
-        :param args: dictionary with extra datum.
+        :param args: dictionary with extra datum. Will be passed
+            to the server as HTTP message body.
         :type args: dict or None
         :rtype: dict
         """
@@ -358,17 +355,62 @@ class VscApiClient():
         try:
             reply = urllib2.urlopen(request, timeout = self.timeout)
         except urllib2.HTTPError as exc:
-            if exc.code == 401:
-                raise NotAuthorizedError(exc.reason)
-            elif exc.code == 404:
-                raise NotFoundError(exc.reason)
-            elif exc.code == 406:
-                raise BadArgError(exc.reason)
-            else:
-                raise UnknownError(exc.code, exc.reason)
+            _decodeErrorResponse(exc)
         reply_data = reply.read()
         if reply_data is not None:
             return json.loads(reply_data)
+
+
+def _decodeErrorResponse(http_exception):
+    """
+    Decode the error HTTP response received from the VSC API Server
+    and raise an appropriate exception.
+    The goal of the method is to provide the most adequate feedback
+    to the user.
+
+    :param http_exception: error response.
+    :type http_exception: an instance of urllib2.HTTPError
+    """
+    # look if we have one of simple error cases
+    if http_exception.code == 401:
+        raise NotAuthenticatedError
+    elif http_exception.code == 500:
+        raise InternalServerError
+    elif http_exception.code == 501:
+        raise NotImplementedError
+    elif http_exception.code == 404:
+        raise NotFoundError
+    # ...or try to find more error details in the message body
+    error_classes_map = {403: {'access_denied': NotAuthorizedError,
+                               'bad_argument': BadArgError}}
+    classes = error_classes_map.get(http_exception.code)
+    if classes is None:
+        # unrecognized error => nothing to decode => re-raise it as is.
+        raise http_exception
+    # read and decode the entity
+    content_length = int(http_exception.headers.get('Content-Length', '0'))
+    content_type = http_exception.headers.get('Content-Type')
+    if content_type != 'application/json' or content_length <= 0:
+        # nothing to decode => re-raise it as is
+        raise http_exception
+    encoded_entity = http_exception.read(content_length)
+    if len(encoded_entity) != content_length:
+        # bad message body length => re-raise it as is
+        raise http_exception
+    try:
+        entity = json.loads(encoded_entity)
+        error_class = entity['error_class']
+        error_message = entity['error_message']
+    except Exception:
+        # received entity is not valid => re-raise the origin
+        # exception as is
+        raise http_exception
+    # try to map encoded error class to an exception class
+    class_name = classes.get(error_class)
+    if class_name is None:
+        # no exception class found => re-raise it as is
+        raise http_exception
+    raise class_name(error_message)
 
 
 def _resolve(hostname, port):
