@@ -2,7 +2,7 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: VscApiClient
 
 Files: *
-Copyright: 2014 Aleksey Morarash <aleksey.morarash@massivesolutions.eu>
+Copyright: 2014 Massive Solutions Ltd. <info@massivesolutions.eu>
 License: GPL-2+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
