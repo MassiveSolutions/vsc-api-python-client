@@ -31,6 +31,7 @@ class VscApiClient():
     secure = True
     username = None
     password = None
+    user_id = None
     timeout = DEFAULT_TIMEOUT
 
     def __init__(self, username = None, password = None,
@@ -87,6 +88,8 @@ class VscApiClient():
         :param password: Caller user password.
         :type password: string
         """
+        if username != self.username:
+            self.user_id = None
         self.username = username
         self.password = password
 
@@ -96,6 +99,7 @@ class VscApiClient():
         """
         self.username = None
         self.password = None
+        self.user_id = None
 
     # -----------------------------------------------------------------
     # VSC API bindings
@@ -356,6 +360,9 @@ class VscApiClient():
             reply = urllib2.urlopen(request, timeout = self.timeout)
         except urllib2.HTTPError as exc:
             _decodeErrorResponse(exc)
+        user_id = reply.headers.get('X-VSC-User-ID')
+        if user_id is not None:
+            self.user_id = user_id
         reply_data = reply.read()
         if reply_data is not None:
             return json.loads(reply_data)
