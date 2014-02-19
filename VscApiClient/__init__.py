@@ -27,12 +27,12 @@ class VscApiClient():
     VSC API Client implementation.
     """
 
-    addrs = []
-    secure = True
-    username = None
-    password = None
-    user_id = None
-    timeout = DEFAULT_TIMEOUT
+    __addrs = []
+    __secure = True
+    __username = None
+    __password = None
+    __user_id = None
+    __timeout = DEFAULT_TIMEOUT
 
     def __init__(self, username = None, password = None,
                  hostname = None, port = None, secure = True,
@@ -53,9 +53,9 @@ class VscApiClient():
         :param timeout: maximum timeout
         :type timeout: integer
         """
-        self.secure = secure
+        self.__secure = secure
         if timeout is not None:
-            self.timeout = timeout
+            self.__timeout = timeout
         self.setEndPoint(hostname, port)
         self.setAuth(username, password)
 
@@ -73,11 +73,11 @@ class VscApiClient():
         try:
             ipaddr.IPAddress(hostname)
             if port is not None:
-                self.addrs = [(hostname, port)]
+                self.__addrs = [(hostname, port)]
             else:
-                self.addrs = [(hostname, DEFAULT_TCP_PORT)]
+                self.__addrs = [(hostname, DEFAULT_TCP_PORT)]
         except Exception:
-            self.addrs = _resolve(hostname, port)
+            self.__addrs = _resolve(hostname, port)
 
     def setAuth(self, username, password):
         """
@@ -88,18 +88,18 @@ class VscApiClient():
         :param password: Caller user password.
         :type password: string
         """
-        if username != self.username:
-            self.user_id = None
-        self.username = username
-        self.password = password
+        if username != self.__username:
+            self.__user_id = None
+        self.__username = username
+        self.__password = password
 
     def dropAuth(self):
         """
         Drop all authentication requisites for the Client.
         """
-        self.username = None
-        self.password = None
-        self.user_id = None
+        self.__username = None
+        self.__password = None
+        self.__user_id = None
 
     # -----------------------------------------------------------------
     # VSC API bindings
@@ -337,8 +337,8 @@ class VscApiClient():
         :type args: dict or None
         :rtype: dict
         """
-        host, port = random.choice(self.addrs)
-        if self.secure:
+        host, port = random.choice(self.__addrs)
+        if self.__secure:
             url = 'https://{0}:{1}/{2}'.format(host, port, path.strip('/'))
         else:
             url = 'http://{0}:{1}/{2}'.format(host, port, path.strip('/'))
@@ -347,8 +347,8 @@ class VscApiClient():
         request = urllib2.Request(url)
         request.get_method = lambda: method
         request.add_header('User-Agent', 'VscApiPythonClient')
-        if self.username is not None and self.password is not None:
-            plain_ident = '{0}:{1}'.format(self.username, self.password)
+        if self.__username is not None and self.__password is not None:
+            plain_ident = '{0}:{1}'.format(self.__username, self.__password)
             encoded_ident = base64.b64encode(plain_ident)
             request.add_header('Authorization', 'Basic ' + encoded_ident)
         if args is not None and method in ('POST', 'PUT'):
@@ -357,12 +357,12 @@ class VscApiClient():
             request.add_header('Content-Length', len(encoded_args))
             request.add_data(encoded_args)
         try:
-            reply = urllib2.urlopen(request, timeout = self.timeout)
+            reply = urllib2.urlopen(request, timeout = self.__timeout)
         except urllib2.HTTPError as exc:
             _decodeErrorResponse(exc)
         user_id = reply.headers.get('X-VSC-User-ID')
         if user_id is not None:
-            self.user_id = user_id
+            self.__user_id = user_id
         reply_data = reply.read()
         if reply_data is not None:
             return json.loads(reply_data)
