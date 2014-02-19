@@ -545,6 +545,7 @@ def _resolve(hostname, port):
     else:
         srvname = SRV_PREFIX + hostname
     try:
+        # TODO: obey SRV-record priorities
         return [(item.target.to_text().strip('.'), item.port)
                 for item in dns.resolver.query(srvname, 'srv')]
     except dns.resolver.NXDOMAIN:
