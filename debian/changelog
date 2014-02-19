@@ -1,3 +1,9 @@
+python-vsc (0.2.0-1) unstable; urgency=low
+
+  * add Job-related methods.
+
+ -- Aleksey Morarash <aleksey.morarash@massivesolutions.eu>  Wed, 19 Feb 2014 10:51:00 +0200
+
 python-vsc (0.1.0-2) unstable; urgency=low
 
   * Initial release
