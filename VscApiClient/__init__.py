@@ -430,6 +430,96 @@ class VscApiClient():
             url_path += '&user={0}'.format(user_id)
         return self._request('GET', url_path)
 
+    def packageGetData(self, package_id):
+        """
+        Return package info.
+
+        :param package_id: UUID of the package.
+        :type package_id: string
+        :rtype: dict
+        """
+        return self._request('GET', 'package/{0}'.format(package_id))
+
+    def packageCreate(self, data, package_id = None):
+        """
+        Create a new package.
+        Return an UUID of the created package on success.
+
+        :param data: package metainfo.
+        :type data: dict
+        :param package_id: UUID of the package.
+        :type package_id: string or None.
+        :rtype: string
+        """
+        if package_id is None:
+            package_id = uuid.uuid4().hex
+        url_path = 'package/{0}?create=1'.format(package_id)
+        self._request('PUT', url_path, data)
+        return package_id
+
+    def packageUpdate(self, package_id, data):
+        """
+        Update metainfo for the existing package.
+
+        :param package_id: UUID of the package.
+        :type package_id: string
+        :param data: package metainfo.
+        :type data: dict
+        """
+        self._request('PUT', 'package/{0}'.format(package_id), data)
+
+    def packageDel(self, package_id):
+        """
+        Remove the package.
+
+        :param package_id: UUID of the package.
+        :type package_id: string
+        """
+        self._request('DELETE', 'package/{0}'.format(package_id))
+
+    def packageList(self, format = 'full'):
+        """
+        List packages owned by the caller.
+
+        :param format: result format. Can be 'full' (which is the default)
+            and 'ids_only'. In the former case the method will return list
+            of dictionaries (a dictionary with metainfo for each package
+            found), and the latter case the method will return a plain
+            list of UUID of packages found.
+        :type format: string
+        :rtype: list of dicts or list of strings
+        """
+        if format not in ('full', 'ids_only'):
+            raise BadArgError('Bad format value')
+        if self.__user_id is not None:
+            # user ID already known. requesting directly
+            return self.packageListAll(format, self.__user_id)
+        # user ID is not known yet. requesting redirection
+        url_path = 'list_packages?format={0}'.format(format)
+        return self._request('GET', url_path)
+
+    def packageListAll(self, format = 'full', user_id = None):
+        """
+        List all packages.
+
+        :param format: result format. Can be 'full' (which is the default)
+            and 'ids_only'. In the former case the method will return list
+            of dictionaries (a dictionary with metainfo for each package
+            found), and the latter case the method will return a plain
+            list of UUID of packages found.
+        :type format: string
+        :param user_id: UUID of the package's owner. If defined,
+            only packages owned by the user will be searched.
+        :type user_id: string or None
+        :rtype: list of dicts or list of strings
+        """
+        if format not in ('full', 'ids_only'):
+            raise BadArgError('Bad format value')
+        url_path = 'package?format={0}'.format(format)
+        if user_id is not None:
+            url_path += '&user={0}'.format(user_id)
+        return self._request('GET', url_path)
+
     # -----------------------------------------------------------------
     # Internal methods
     # -----------------------------------------------------------------
