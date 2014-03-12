@@ -105,6 +105,16 @@ class VscApiClient():
     # VSC API bindings
     # -----------------------------------------------------------------
 
+    def whoami(self):
+        """
+        Return current user ID - UUID of the user, identified by
+        the username and the password.
+
+        :rtype: string
+        """
+        reply = self._request('GET', '/whoami')
+        return reply['id']
+
     # -----------------------------------------------------------------
     # AAA methods
 
