@@ -440,6 +440,32 @@ class VscApiClient():
             url_path += '&user={0}'.format(user_id)
         return self._request('GET', url_path)
 
+    def jobForward(self, job_id, tcp_ports):
+        """
+        Create TCP connection forwardings from the Internet
+        to the Access node of the virtual cluster.
+
+        :param job_id: UUID of the job.
+        :type job_id: string
+        :param tcp_ports: TCP port numbers to forward.
+        :type tcp_ports: list of integers between 1 and 65535
+        """
+        url_path = '/job/{0}/fwd'.format(job_id)
+        self._request('PUT', url_path, tcp_ports)
+
+    def jobGetForwardMap(self, job_id):
+        """
+        Return current connection forwarding map for the job.
+
+        :param job_id: UUID of the job.
+        :type job_id: string
+        :rtype: list of (public_ip, public_port, destination_port)
+            where public_ip is string, public_port and
+            destination_port are integers.
+        """
+        url_path = '/job/{0}/fwd'.format(job_id)
+        return self._request('GET', url_path)
+
     def packageGetData(self, package_id):
         """
         Return package info.
