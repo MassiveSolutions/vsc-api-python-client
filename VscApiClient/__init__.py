@@ -556,6 +556,107 @@ class VscApiClient():
             url_path += '&user={0}'.format(user_id)
         return self._request('GET', url_path)
 
+    def imageGetData(self, image_id):
+        """
+        Return image info.
+
+        :param image_id: UUID of the image.
+        :type image_id: string
+        :rtype: dict
+        """
+        return self._request('GET', 'image/{0}'.format(image_id))
+
+    def imageGenerateUrl(self, image_id):
+        """
+        Generate temporary URL which can be used to download
+        the image archive.
+
+        :param image_id: UUID of the image.
+        :type image_id: string or None.
+        :rtype: string
+        """
+        return self._request('GET', 'image/{0}/genurl'.format(image_id))
+
+    def imageCreate(self, data, image_id = None):
+        """
+        Create a new image.
+        Return an UUID of the created image on success.
+
+        :param data: image metainfo.
+        :type data: dict
+        :param image_id: UUID of the image.
+        :type image_id: string or None.
+        :rtype: string
+        """
+        if image_id is None:
+            image_id = uuid.uuid4().hex
+        url_path = 'image/{0}?create=1'.format(image_id)
+        self._request('PUT', url_path, data)
+        return image_id
+
+    def imageUpdate(self, image_id, data):
+        """
+        Update metainfo for the existing image.
+
+        :param image_id: UUID of the image.
+        :type image_id: string
+        :param data: image metainfo.
+        :type data: dict
+        """
+        self._request('PUT', 'image/{0}'.format(image_id), data)
+
+    def imageDel(self, image_id):
+        """
+        Remove the image.
+
+        :param image_id: UUID of the image.
+        :type image_id: string
+        """
+        self._request('DELETE', 'image/{0}'.format(image_id))
+
+    def imageList(self, format = 'full'):
+        """
+        List images owned by the caller.
+
+        :param format: result format. Can be 'full' (which is the default)
+            and 'ids_only'. In the former case the method will return list
+            of dictionaries (a dictionary with metainfo for each image
+            found), and the latter case the method will return a plain
+            list of UUID of images found.
+        :type format: string
+        :rtype: list of dicts or list of strings
+        """
+        if format not in ('full', 'ids_only'):
+            raise BadArgError('Bad format value')
+        if self.__user_id is not None:
+            # user ID already known. requesting directly
+            return self.imageListAll(format, self.__user_id)
+        # user ID is not known yet. requesting redirection
+        url_path = 'list_images?format={0}'.format(format)
+        return self._request('GET', url_path)
+
+    def imageListAll(self, format = 'full', user_id = None):
+        """
+        List all images.
+
+        :param format: result format. Can be 'full' (which is the default)
+            and 'ids_only'. In the former case the method will return list
+            of dictionaries (a dictionary with metainfo for each image
+            found), and the latter case the method will return a plain
+            list of UUID of images found.
+        :type format: string
+        :param user_id: UUID of the image's owner. If defined,
+            only images owned by the user will be searched.
+        :type user_id: string or None
+        :rtype: list of dicts or list of strings
+        """
+        if format not in ('full', 'ids_only'):
+            raise BadArgError('Bad format value')
+        url_path = 'image?format={0}'.format(format)
+        if user_id is not None:
+            url_path += '&user={0}'.format(user_id)
+        return self._request('GET', url_path)
+
     # -----------------------------------------------------------------
     # Internal methods
     # -----------------------------------------------------------------
