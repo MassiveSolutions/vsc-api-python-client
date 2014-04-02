@@ -1,3 +1,12 @@
+python-vsc (0.3.0-1) unstable; urgency=low
+
+  * add Image-related methods;
+  * add Package-related methods;
+  * add methods for connection forwarding management;
+  * add 'whoami' method.
+
+ -- Aleksey Morarash <aleksey.morarash@massivesolutions.eu>  Wed, 02 Apr 2014 13:59:00 +0300
+
 python-vsc (0.2.0-1) unstable; urgency=low
 
   * add Job-related methods.
