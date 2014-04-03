@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
     name = 'VscApiClient',
-    version = '0.3.0',
+    version = '0.4.0',
     description = 'Client for VSC Core HTTP API',
     author = 'Aleksey Morarash',
     author_email = 'aleksey.morarash@massivesolutions.eu',

@@ -657,6 +657,14 @@ class VscApiClient():
             url_path += '&user={0}'.format(user_id)
         return self._request('GET', url_path)
 
+    def getImageReceiverBaseURLs(self):
+        """
+        Return list of base URLs for available VSC Image Receivers.
+
+        :rtype: list of strings
+        """
+        return self._request('GET', 'image_receiver')
+
     # -----------------------------------------------------------------
     # Internal methods
     # -----------------------------------------------------------------
