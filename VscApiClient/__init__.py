@@ -708,9 +708,10 @@ class VscApiClient():
         user_id = reply.headers.get('X-VSC-User-ID')
         if user_id is not None:
             self.__user_id = user_id
-        reply_data = reply.read()
-        if reply_data is not None:
-            return json.loads(reply_data)
+        if reply.getcode() != 204:
+            reply_data = reply.read()
+            if reply_data is not None:
+                return json.loads(reply_data)
 
 
 def _decodeErrorResponse(http_exception):
