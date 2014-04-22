@@ -665,6 +665,111 @@ class VscApiClient():
         """
         return self._request('GET', 'image_receiver')
 
+    def jobProfileCreate(self, job_profile_data, is_public = False,
+                         job_profile_id = None):
+        """
+        Create a new job profile.
+        On success return UUID of the job profile created.
+
+        :param job_profile_data: data for the job profile.
+        :type job_profile_data: dict
+        :param is_public: make the job profile public or not.
+            Default is False (job profile will not be published).
+        :type is_public: boolean
+        :param job_profile_id: UUID of job profile to create.
+            If not defined, will be generated automatically.
+        :type job_profile_id: string or NoneType
+        :rtype: string
+        """
+        if job_profile_id is None:
+            job_profile_id = uuid.uuid4().hex
+        url = 'job_profile/{0}?create=1&public={1}'.format(
+            job_profile_id, 1 if is_public else 0)
+        self._request('PUT', url, job_profile_data)
+        return job_profile_id
+
+    def jobProfileUpdate(self, job_profile_id, job_profile_data,
+                         is_public):
+        """
+        Update an existing job profile.
+
+        :param job_profile_id: UUID of job profile to update.
+        :type job_profile_id: string
+        :param job_profile_data: new data for the job profile.
+        :type job_profile_data: dict
+        :param is_public: make the job profile public or not.
+        :type is_public: boolean
+        """
+        url = 'job_profile/{0}?public={1}'.format(
+            job_profile_id, 1 if is_public else 0)
+        self._request('PUT', url, job_profile_data)
+
+    def jobProfileDelete(self, job_profile_id):
+        """
+        Delete an existing job profile.
+
+        :param job_profile_id: UUID of job profile to delete.
+        :type job_profile_id: string
+        """
+        self._request('DELETE', 'job_profile/' + job_profile_id)
+
+    def jobProfileList(self, format = 'full'):
+        """
+        List job profiles owned by the current user.
+
+        :param format: result format. Can be 'full' (which is the default)
+            and 'ids_only'. In the former case the method will return list
+            of (id, dict) pairs for each job profile, and the latter case
+            the method will return a plain list of UUID of job profiles found.
+        :type format: string
+        :rtype: list of (id, dict) pairs or list of strings
+        """
+        if format not in ('full', 'ids_only'):
+            raise BadArgError('Bad format value')
+        if self.__user_id is not None:
+            # user ID already known. requesting directly
+            return self.jobProfileListAll(format, self.__user_id)
+        # user ID is not known yet. requesting redirection
+        return self._request('GET', 'list_job_profiles?format=' + format)
+
+    def jobProfileListPublic(self, format = 'full'):
+        """
+        List all public job profiles.
+
+        :param format: result format. Can be 'full' (which is the default)
+            and 'ids_only'. In the former case the method will return list
+            of (id, dict) pairs for each job profile, and the latter case
+            the method will return a plain list of UUID of job profiles found.
+        :type format: string
+        :rtype: list of (id, dict) pairs or list of strings
+        """
+        if format not in ('full', 'ids_only'):
+            raise BadArgError('Bad format value')
+        url = 'list_public_job_profiles?format=' + format
+        return self._request('GET', url)
+
+    def jobProfileListAll(self, format = 'full', user_id = None):
+        """
+        List all job profiles. If the user_id is defined,
+        the method will list all job profiles owned by the user.
+
+        :param format: result format. Can be 'full' (which is the default)
+            and 'ids_only'. In the former case the method will return list
+            of (id, dict) pairs for each job profile, and the latter case
+            the method will return a plain list of UUID of job profiles found.
+        :type format: string
+        :param user_id: UUID of the job profile's owner. If defined,
+            only job profiles owned by the user will be searched.
+        :type user_id: string or None
+        :rtype: list of (id, dict) pairs or list of strings
+        """
+        if format not in ('full', 'ids_only'):
+            raise BadArgError('Bad format value')
+        url = 'list_job_profiles?format=' + format
+        if user_id is not None:
+            url += '&user=' + user_id
+        return self._request('GET', url_path)
+
     # -----------------------------------------------------------------
     # Internal methods
     # -----------------------------------------------------------------

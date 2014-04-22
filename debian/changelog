@@ -1,3 +1,9 @@
+python-vsc (0.5.0-1) unstable; urgency=low
+
+  * add methods for managing Job Profiles.
+
+ -- Aleksey Morarash <aleksey.morarash@massivesolutions.eu>  Tue, 22 Apr 2014 11:14:00 +0300
+
 python-vsc (0.4.0-1) unstable; urgency=low
 
   * add method to extract base URLs of Image Receivers.
