@@ -768,7 +768,7 @@ class VscApiClient():
         url = 'list_job_profiles?format=' + format
         if user_id is not None:
             url += '&user=' + user_id
-        return self._request('GET', url_path)
+        return self._request('GET', url)
 
     # -----------------------------------------------------------------
     # Internal methods
