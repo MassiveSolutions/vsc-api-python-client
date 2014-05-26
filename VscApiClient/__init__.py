@@ -366,14 +366,28 @@ class VscApiClient():
         url_path = 'job/{0}?format={1}'.format(job_id, format)
         return self._request('GET', url_path)
 
-    def jobStop(self, job_id):
+    def jobStop(self, job_id, save = False, saved_description = None,
+                save_homefs = False):
         """
         Immediately stop the job.
 
         :param job_id: UUID of the job.
         :type job_id: string
+        :param save: save the PaaS cluster or not. Default is False;
+        :type save: boolean
+        :param saved_description: textual description for
+            cluster (for save).
+        :type saved_description: string
+        :param save_homefs: save the cluster's home FS or not.
+            Default is False.
+        :type save_homefs: boolean
         """
-        self._request('STOP', 'job/{0}'.format(job_id))
+        entity = {}
+        if saved_description is not None:
+            entity['description'] = saved_description
+        url = 'job/{0}?save={1}&save_homefs={2}'.format(
+            job_id, 1 if save else 0, 1 if save_homefs else 0)
+        self._request('STOP', url, entity)
 
     def jobList(self, format = 'basic', historic = False):
         """
