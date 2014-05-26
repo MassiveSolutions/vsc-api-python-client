@@ -1,3 +1,9 @@
+python-vsc (0.6.0-1) unstable; urgency=low
+
+  * job stop: add support for PaaS cluster save.
+
+ -- Aleksey Morarash <aleksey.morarash@massivesolutions.eu>  Mon, 26 May 2014 10:49:00 +0300
+
 python-vsc (0.5.0-1) unstable; urgency=low
 
   * add methods for managing Job Profiles.
