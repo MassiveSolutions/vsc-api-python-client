@@ -271,6 +271,24 @@ class VscApiClient():
         url_path = 'aaa/role/{0}/minors/{1}'.format(major_id, minor_id)
         self._request('DELETE', url_path)
 
+    def aaaSetRoleMinors(self, major_id, minor_ids):
+        """
+        Update list of minor roles assigned to the role.
+        If the major role has some minor roles assigned before
+        the call and the minor roles does not exist in the
+        minor_ids list, this relations between the major role and
+        the minor roles will be removed. So, to completely remove
+        all role-to-role associations for the major role
+        aaaSetRoleMinors(user_id, []) call can be used effectively.
+
+        :param major_id: UUID of the major role
+        :type major_id: string
+        :param minor_ids: UUIDs of the minor roles.
+        :type minor_ids: list of strings
+        """
+        url_path = 'aaa/role/{0}/minors'.format(major_id)
+        self._request('PUT', url_path, minor_ids)
+
     def aaaListRoleMinors(self, major_id):
         """
         Return a list of minor roles for the role.
@@ -319,6 +337,24 @@ class VscApiClient():
         """
         url_path = 'aaa/user/{0}/roles/{1}'.format(user_id, role_id)
         self._request('DELETE', url_path)
+
+    def aaaSetUserRoles(self, user_id, role_ids):
+        """
+        Update list of roles assigned to the user.
+        If the user has some roles assigned before the call
+        and the roles does not exist in the role_ids list,
+        this relations between the user and the roles will
+        be removed. So, to completely remove all user-role
+        associations for the user aaaSetUserRoles(user_id, [])
+        call can be used effectively.
+
+        :param user_id: UUID of the user
+        :type user_id: string
+        :param role_ids: UUIDs of the roles.
+        :type role_ids: list of strings
+        """
+        url_path = 'aaa/user/{0}/roles'.format(user_id)
+        self._request('PUT', url_path, role_ids)
 
     def aaaListUserRoles(self, user_id):
         """
