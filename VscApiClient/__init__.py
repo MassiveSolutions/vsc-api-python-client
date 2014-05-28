@@ -158,13 +158,19 @@ class VscApiClient():
         """
         self._request('POST', 'aaa/passwd', password)
 
-    def aaaListUsers(self):
+    def aaaListUsers(self, format = 'ids_only'):
         """
         Return a list of UUIDs of all users.
 
+        :param format: result format. Can be 'ids_only' which is the
+            default and 'full'. In former case the method will return
+            a plain list of user IDs found; in latter case - the list of
+            [user_id, user_data] lists, where each user_id is string and
+            user_data is dict.
+        :type format: string, one of ('ids_only', 'full').
         :rtype: list of strings
         """
-        return self._request('GET', 'aaa/user')
+        return self._request('GET', 'aaa/user?format={0}'.format(format))
 
     def aaaGetUserData(self, user_id):
         """
@@ -213,13 +219,19 @@ class VscApiClient():
         """
         self._request('DELETE', 'aaa/role/{0}'.format(role_id))
 
-    def aaaListRoles(self):
+    def aaaListRoles(self, format = 'ids_only'):
         """
         Return a list of UUIDs of all roles.
 
+        :param format: result format. Can be 'ids_only' which is the
+            default and 'full'. In former case the method will return
+            a plain list of role IDs found; in latter case - the list of
+            [role_id, role_data] lists, where each role_id is string and
+            role_data is dict.
+        :type format: string, one of ('ids_only', 'full').
         :rtype: list of strings
         """
-        return self._request('GET', 'aaa/role')
+        return self._request('GET', 'aaa/role?format={0}'.format(format))
 
     def aaaGetRoleData(self, role_id):
         """
