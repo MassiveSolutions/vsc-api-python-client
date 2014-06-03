@@ -415,7 +415,7 @@ class VscApiClient():
         return self._request('GET', url_path)
 
     def jobStop(self, job_id, save = False, saved_description = None,
-                save_homefs = False):
+                save_homefs = False, force = False):
         """
         Immediately stop the job.
 
@@ -429,12 +429,15 @@ class VscApiClient():
         :param save_homefs: save the cluster's home FS or not.
             Default is False.
         :type save_homefs: boolean
+        :param force: force stop stalled job.
+        :type force: boolean
         """
         entity = {}
         if saved_description is not None:
             entity['description'] = saved_description
-        url = 'job/{0}?save={1}&save_homefs={2}'.format(
-            job_id, 1 if save else 0, 1 if save_homefs else 0)
+        url = 'job/{0}?save={1}&save_homefs={2}&force={3}'.format(
+            job_id, 1 if save else 0, 1 if save_homefs else 0,
+            1 if force else 0)
         self._request('STOP', url, entity)
 
     def jobList(self, format = 'basic', historic = False):
