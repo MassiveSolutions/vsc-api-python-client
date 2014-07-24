@@ -131,8 +131,8 @@ class VscApiClient():
         """
         if user_id is None:
             user_id = uuid.uuid4().hex
-        url_path = 'aaa/user/{0}?create=1'.format(user_id)
-        self._request('PUT', url_path, data)
+        url_path = 'aaa/user/{0}'.format(user_id)
+        self._request('PUT', url_path, {'create': 1}, data)
         return user_id
 
     def aaaUpdateUser(self, user_id, data):
@@ -144,7 +144,7 @@ class VscApiClient():
         :param data: user data dictionary.
         :type data: dict
         """
-        self._request('PUT', 'aaa/user/{0}'.format(user_id), data)
+        self._request('PUT', 'aaa/user/{0}'.format(user_id), None, data)
 
     def aaaPasswd(self, password):
         """
@@ -156,7 +156,7 @@ class VscApiClient():
         :param password: new password for the user.
         :type password: string
         """
-        self._request('POST', 'aaa/passwd', password)
+        self._request('POST', 'aaa/passwd', None, password)
 
     def aaaListUsers(self, format = 'ids_only'):
         """
@@ -170,7 +170,7 @@ class VscApiClient():
         :type format: string, one of ('ids_only', 'full').
         :rtype: list of strings
         """
-        return self._request('GET', 'aaa/user?format={0}'.format(format))
+        return self._request('GET', 'aaa/user', {'format': format})
 
     def aaaGetUserData(self, user_id):
         """
@@ -195,8 +195,8 @@ class VscApiClient():
         """
         if role_id is None:
             role_id = uuid.uuid4().hex
-        url_path = 'aaa/role/{0}?create=1'.format(role_id)
-        self._request('PUT', url_path, data)
+        url_path = 'aaa/role/{0}'.format(role_id)
+        self._request('PUT', url_path, {'create': 1}, data)
         return role_id
 
     def aaaUpdateRole(self, role_id, data):
@@ -208,7 +208,7 @@ class VscApiClient():
         :param data: user data dictionary.
         :type data: dict
         """
-        self._request('PUT', 'aaa/role/{0}'.format(role_id), data)
+        self._request('PUT', 'aaa/role/{0}'.format(role_id), None, data)
 
     def aaaDelRole(self, role_id):
         """
@@ -231,7 +231,7 @@ class VscApiClient():
         :type format: string, one of ('ids_only', 'full').
         :rtype: list of strings
         """
-        return self._request('GET', 'aaa/role?format={0}'.format(format))
+        return self._request('GET', 'aaa/role', {'format': format})
 
     def aaaGetRoleData(self, role_id):
         """
@@ -287,7 +287,7 @@ class VscApiClient():
         :type minor_ids: list of strings
         """
         url_path = 'aaa/role/{0}/minors'.format(major_id)
-        self._request('PUT', url_path, minor_ids)
+        self._request('PUT', url_path, None, minor_ids)
 
     def aaaListRoleMinors(self, major_id):
         """
@@ -354,7 +354,7 @@ class VscApiClient():
         :type role_ids: list of strings
         """
         url_path = 'aaa/user/{0}/roles'.format(user_id)
-        self._request('PUT', url_path, role_ids)
+        self._request('PUT', url_path, None, role_ids)
 
     def aaaListUserRoles(self, user_id):
         """
@@ -392,8 +392,8 @@ class VscApiClient():
         """
         if job_id is None:
             job_id = uuid.uuid4().hex + uuid.uuid4().hex
-        url_path = 'job/{0}?create=1'.format(job_id)
-        self._request('PUT', url_path, data)
+        url_path = 'job/{0}'.format(job_id)
+        self._request('PUT', url_path, {'create': 1}, data)
         return job_id
 
     def jobGetData(self, job_id, format = 'basic'):
@@ -411,8 +411,8 @@ class VscApiClient():
         """
         if format not in ('basic', 'full'):
             raise BadArgError('Bad format value')
-        url_path = 'job/{0}?format={1}'.format(job_id, format)
-        return self._request('GET', url_path)
+        url_path = 'job/{0}'.format(job_id)
+        return self._request('GET', url_path, {'format': format})
 
     def jobStop(self, job_id, save = False, saved_description = None,
                 save_homefs = False, force = False):
@@ -435,10 +435,10 @@ class VscApiClient():
         entity = {}
         if saved_description is not None:
             entity['description'] = saved_description
-        url = 'job/{0}?save={1}&save_homefs={2}&force={3}'.format(
-            job_id, 1 if save else 0, 1 if save_homefs else 0,
-            1 if force else 0)
-        self._request('STOP', url, entity)
+        params = {'save': int(save), 'save_homefs': int(save_homefs),
+                'force': int(force)}
+        url = 'job/{0}'.format(job_id)
+        self._request('STOP', url, params, entity)
 
     def jobList(self, format = 'basic', historic = False):
         """
@@ -467,9 +467,8 @@ class VscApiClient():
             # user ID already known. requesting directly
             return self.jobListAll(format, historic, self.__user_id)
         # user ID is not known yet. requesting redirection
-        url_path = 'list_jobs?format={0}&historic={1}'.\
-            format(format, 1 if historic else 0)
-        return self._request('GET', url_path)
+        params = {'format': format, 'historic': int(historic)}
+        return self._request('GET', 'list_jobs', params)
 
     def jobListAll(self, format = 'basic', historic = False,
                    user_id = None):
@@ -499,11 +498,10 @@ class VscApiClient():
             raise BadArgError('Bad format value')
         if not isinstance(historic, bool):
             raise BadArgError('Bad value for "historic"')
-        url_path = 'job?format={0}&historic={1}'.\
-            format(format, 1 if historic else 0)
+        params = {'format': format, 'historic': int(historic)}
         if user_id is not None:
-            url_path += '&user={0}'.format(user_id)
-        return self._request('GET', url_path)
+            params['user'] = user_id
+        return self._request('GET', 'job', params)
 
     def jobForward(self, job_id, tcp_ports):
         """
@@ -516,7 +514,7 @@ class VscApiClient():
         :type tcp_ports: list of integers between 1 and 65535
         """
         url_path = '/job/{0}/fwd'.format(job_id)
-        self._request('PUT', url_path, tcp_ports)
+        self._request('PUT', url_path, None, tcp_ports)
 
     def jobGetForwardMap(self, job_id):
         """
@@ -554,8 +552,8 @@ class VscApiClient():
         """
         if package_id is None:
             package_id = uuid.uuid4().hex
-        url_path = 'package/{0}?create=1'.format(package_id)
-        self._request('PUT', url_path, data)
+        url_path = 'package/{0}'.format(package_id)
+        self._request('PUT', url_path, {'create': 1}, data)
         return package_id
 
     def packageUpdate(self, package_id, data):
@@ -567,7 +565,7 @@ class VscApiClient():
         :param data: package metainfo.
         :type data: dict
         """
-        self._request('PUT', 'package/{0}'.format(package_id), data)
+        self._request('PUT', 'package/{0}'.format(package_id), None, data)
 
     def packageDel(self, package_id):
         """
@@ -596,8 +594,7 @@ class VscApiClient():
             # user ID already known. requesting directly
             return self.packageListAll(format, self.__user_id)
         # user ID is not known yet. requesting redirection
-        url_path = 'list_packages?format={0}'.format(format)
-        return self._request('GET', url_path)
+        return self._request('GET', 'list_packages', {'format': format})
 
     def packageListAll(self, format = 'full', user_id = None):
         """
@@ -616,10 +613,10 @@ class VscApiClient():
         """
         if format not in ('full', 'ids_only'):
             raise BadArgError('Bad format value')
-        url_path = 'package?format={0}'.format(format)
+        params = {'format': format}
         if user_id is not None:
-            url_path += '&user={0}'.format(user_id)
-        return self._request('GET', url_path)
+            params['user'] = user_id
+        return self._request('GET', 'package', params)
 
     def imageGetData(self, image_id):
         """
@@ -655,8 +652,8 @@ class VscApiClient():
         """
         if image_id is None:
             image_id = uuid.uuid4().hex
-        url_path = 'image/{0}?create=1'.format(image_id)
-        self._request('PUT', url_path, data)
+        url_path = 'image/{0}'.format(image_id)
+        self._request('PUT', url_path, {'create': 1}, data)
         return image_id
 
     def imageUpdate(self, image_id, data):
@@ -668,7 +665,7 @@ class VscApiClient():
         :param data: image metainfo.
         :type data: dict
         """
-        self._request('PUT', 'image/{0}'.format(image_id), data)
+        self._request('PUT', 'image/{0}'.format(image_id), None, data)
 
     def imageDel(self, image_id):
         """
@@ -697,8 +694,7 @@ class VscApiClient():
             # user ID already known. requesting directly
             return self.imageListAll(format, self.__user_id)
         # user ID is not known yet. requesting redirection
-        url_path = 'list_images?format={0}'.format(format)
-        return self._request('GET', url_path)
+        return self._request('GET', 'list_images', {'format': format})
 
     def imageListAll(self, format = 'full', user_id = None):
         """
@@ -717,10 +713,10 @@ class VscApiClient():
         """
         if format not in ('full', 'ids_only'):
             raise BadArgError('Bad format value')
-        url_path = 'image?format={0}'.format(format)
+        params = {'format': format}
         if user_id is not None:
-            url_path += '&user={0}'.format(user_id)
-        return self._request('GET', url_path)
+            params['user'] = user_id
+        return self._request('GET', 'image', params)
 
     def getImageReceiverBaseURLs(self):
         """
@@ -748,9 +744,9 @@ class VscApiClient():
         """
         if job_profile_id is None:
             job_profile_id = uuid.uuid4().hex
-        url = 'job_profile/{0}?create=1&public={1}'.format(
-            job_profile_id, 1 if is_public else 0)
-        self._request('PUT', url, job_profile_data)
+        url = 'job_profile/{0}'.format(job_profile_id)
+        params = {'create': 1, 'public': int(is_public)}
+        self._request('PUT', url, params, job_profile_data)
         return job_profile_id
 
     def jobProfileUpdate(self, job_profile_id, job_profile_data,
@@ -765,9 +761,9 @@ class VscApiClient():
         :param is_public: make the job profile public or not.
         :type is_public: boolean
         """
-        url = 'job_profile/{0}?public={1}'.format(
-            job_profile_id, 1 if is_public else 0)
-        self._request('PUT', url, job_profile_data)
+        url = 'job_profile/{0}'.format(job_profile_id)
+        params = {'public': is_public}
+        self._request('PUT', url, params, job_profile_data)
 
     def jobProfileDelete(self, job_profile_id):
         """
@@ -795,7 +791,8 @@ class VscApiClient():
             # user ID already known. requesting directly
             return self.jobProfileListAll(format, self.__user_id)
         # user ID is not known yet. requesting redirection
-        return self._request('GET', 'list_job_profiles?format=' + format)
+        return self._request('GET', 'list_job_profiles',
+            {'format': format})
 
     def jobProfileListPublic(self, format = 'full'):
         """
@@ -810,8 +807,8 @@ class VscApiClient():
         """
         if format not in ('full', 'ids_only'):
             raise BadArgError('Bad format value')
-        url = 'list_public_job_profiles?format=' + format
-        return self._request('GET', url)
+        return self._request('GET', 'list_public_job_profiles',
+            {'format': format})
 
     def jobProfileListAll(self, format = 'full', user_id = None):
         """
@@ -830,16 +827,16 @@ class VscApiClient():
         """
         if format not in ('full', 'ids_only'):
             raise BadArgError('Bad format value')
-        url = 'list_job_profiles?format=' + format
+        params = {'format': format}
         if user_id is not None:
-            url += '&user=' + user_id
-        return self._request('GET', url)
+            params['user'] = user_id
+        return self._request('GET', 'list_job_profiles', params)
 
     # -----------------------------------------------------------------
     # Internal methods
     # -----------------------------------------------------------------
 
-    def _request(self, method, path, args = None):
+    def _request(self, method, path, params = None, data = None):
         """
         Do the request to a VSC API Server.
 
@@ -847,9 +844,11 @@ class VscApiClient():
         :type method: string
         :param path: resource path
         :type path: string
-        :param args: dictionary with extra datum. Will be passed
+        :param params: dictionary with URL "query" parameters.
+        :type params: dict or None
+        :param data: dictionary with extra datum. Will be passed
             to the server as HTTP message body.
-        :type args: dict or None
+        :type data: dict or None
         :rtype: dict
         """
         host, port = random.choice(self.__addrs)
@@ -857,8 +856,8 @@ class VscApiClient():
             url = 'https://{0}:{1}/{2}'.format(host, port, path.strip('/'))
         else:
             url = 'http://{0}:{1}/{2}'.format(host, port, path.strip('/'))
-        if args is not None and method in ('GET', 'HEAD', 'DELETE', 'STOP'):
-            url += '?' + urllib.urlencode(args)
+        if params is not None and method in ('GET', 'HEAD', 'DELETE', 'STOP'):
+            url += '?' + urllib.urlencode(params)
         request = urllib2.Request(url)
         request.get_method = lambda: method
         request.add_header('User-Agent', 'VscApiPythonClient')
@@ -866,9 +865,9 @@ class VscApiClient():
             plain_ident = '{0}:{1}'.format(self.__username, self.__password)
             encoded_ident = base64.b64encode(plain_ident)
             request.add_header('Authorization', 'Basic ' + encoded_ident)
-        if args is not None and method in ('POST', 'PUT'):
+        if data is not None and method in ('POST', 'PUT'):
             request.add_header('Content-Type', 'application/json')
-            encoded_args = json.dumps(args)
+            encoded_args = json.dumps(data)
             request.add_header('Content-Length', len(encoded_args))
             request.add_data(encoded_args)
         try:
