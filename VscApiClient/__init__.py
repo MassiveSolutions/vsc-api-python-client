@@ -856,7 +856,7 @@ class VscApiClient():
             url = 'https://{0}:{1}/{2}'.format(host, port, path.strip('/'))
         else:
             url = 'http://{0}:{1}/{2}'.format(host, port, path.strip('/'))
-        if params is not None and method in ('GET', 'HEAD', 'DELETE', 'STOP'):
+        if params is not None:
             url += '?' + urllib.urlencode(params)
         request = urllib2.Request(url)
         request.get_method = lambda: method
