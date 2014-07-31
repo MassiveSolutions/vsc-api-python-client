@@ -435,8 +435,9 @@ class VscApiClient():
         entity = {}
         if saved_description is not None:
             entity['description'] = saved_description
-        params = {'save': int(save), 'save_homefs': int(save_homefs),
-                'force': int(force)}
+        if save_homefs:
+            entity['save_homefs'] = 1
+        params = {'save': int(save), 'force': int(force)}
         url = 'job/{0}'.format(job_id)
         self._request('STOP', url, params, entity)
 
