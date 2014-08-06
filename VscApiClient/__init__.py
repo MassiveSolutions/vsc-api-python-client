@@ -435,8 +435,9 @@ class VscApiClient():
         entity = {}
         if saved_description is not None:
             entity['description'] = saved_description
-        params = {'save': int(save), 'save_homefs': int(save_homefs),
-                'force': int(force)}
+        if save_homefs:
+            entity['save_homefs'] = 1
+        params = {'save': int(save), 'force': int(force)}
         url = 'job/{0}'.format(job_id)
         self._request('STOP', url, params, entity)
 
@@ -865,11 +866,11 @@ class VscApiClient():
             plain_ident = '{0}:{1}'.format(self.__username, self.__password)
             encoded_ident = base64.b64encode(plain_ident)
             request.add_header('Authorization', 'Basic ' + encoded_ident)
-        if data is not None and method in ('POST', 'PUT'):
+        if data is not None:
             request.add_header('Content-Type', 'application/json')
-            encoded_args = json.dumps(data)
-            request.add_header('Content-Length', len(encoded_args))
-            request.add_data(encoded_args)
+            body = json.dumps(data)
+            request.add_header('Content-Length', len(body))
+            request.add_data(body)
         try:
             reply = urllib2.urlopen(request, timeout = self.__timeout)
         except urllib2.HTTPError as exc:
