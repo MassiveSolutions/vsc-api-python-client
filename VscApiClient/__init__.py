@@ -717,6 +717,17 @@ class VscApiClient():
         checkIdOrRaise(image_id)
         return self._request('GET', 'image/{0}'.format(image_id))
 
+    def imageGetAcl(self, image_id):
+        """
+        Return image ACL.
+
+        :param image_id: UUID of the image.
+        :type image_id: string
+        :rtype: list
+        """
+        checkIdOrRaise(image_id)
+        return self._request('GET', 'image/{0}/acl'.format(image_id))
+
     def imageGenerateUrl(self, image_id):
         """
         Generate temporary URL which can be used to download
@@ -760,6 +771,18 @@ class VscApiClient():
         checkIdOrRaise(image_id)
         self._request('PUT', 'image/{0}'.format(image_id), None, data)
 
+    def imageSetAcl(self, image_id, data):
+        """
+        Update ACL for the existing image.
+
+        :param image_id: UUID of the image.
+        :type image_id: string
+        :param data: ACL to set
+        :type data: list
+        """
+        checkIdOrRaise(image_id)
+        self._request('PUT', 'image/{0}/acl'.format(image_id), None, data)
+
     def imageDel(self, image_id):
         """
         Remove the image.
@@ -769,6 +792,16 @@ class VscApiClient():
         """
         checkIdOrRaise(image_id)
         self._request('DELETE', 'image/{0}'.format(image_id))
+
+    def imageDeleteAcl(self, image_id):
+        """
+        Remove the image ACL.
+
+        :param image_id: UUID of the image.
+        :type image_id: string
+        """
+        checkIdOrRaise(image_id)
+        self._request('DELETE', 'image/{0}/acl'.format(image_id))
 
     def imageList(self, format = 'full'):
         """
