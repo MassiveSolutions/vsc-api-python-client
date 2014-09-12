@@ -590,6 +590,17 @@ class VscApiClient():
         checkIdOrRaise(package_id)
         return self._request('GET', 'package/{0}'.format(package_id))
 
+    def packageGetAcl(self, package_id):
+        """
+        Return package ACL.
+
+        :param package_id: UUID of the package.
+        :type package_id: string
+        :rtype: list
+        """
+        checkIdOrRaise(package_id)
+        return self._request('GET', 'package/{0}/acl'.format(package_id))
+
     def packageCreate(self, data, package_id = None):
         """
         Create a new package.
@@ -621,6 +632,18 @@ class VscApiClient():
         checkIdOrRaise(package_id)
         self._request('PUT', 'package/{0}'.format(package_id), None, data)
 
+    def packageSetAcl(self, package_id, data):
+        """
+        Update ACL for the existing package.
+
+        :param package_id: UUID of the package.
+        :type package_id: string
+        :param data: ACL to set
+        :type data: list
+        """
+        checkIdOrRaise(package_id)
+        self._request('PUT', 'package/{0}/acl'.format(package_id), None, data)
+
     def packageDel(self, package_id):
         """
         Remove the package.
@@ -630,6 +653,16 @@ class VscApiClient():
         """
         checkIdOrRaise(package_id)
         self._request('DELETE', 'package/{0}'.format(package_id))
+
+    def packageDeleteAcl(self, package_id):
+        """
+        Remove the package ACL.
+
+        :param package_id: UUID of the package.
+        :type package_id: string
+        """
+        checkIdOrRaise(package_id)
+        self._request('DELETE', 'package/{0}/acl'.format(package_id))
 
     def packageList(self, format = 'full'):
         """
