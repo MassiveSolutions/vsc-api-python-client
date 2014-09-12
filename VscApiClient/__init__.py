@@ -20,6 +20,26 @@ DEFAULT_HOSTNAME = 'api.vsc.com'
 DEFAULT_TCP_PORT = 8914
 DEFAULT_TIMEOUT = 5
 SRV_PREFIX = '_vsc-api-server._tcp.'
+ID_ALLOWED_CHARS = (
+    "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm"
+    "0123456789._-")
+
+
+def checkIdOrRaise(xid):
+    """
+    Check identifier validity.
+    This serves both proper character set and absense of need to
+    quote() it in URL.
+    This works universally both for job ids and uuids. More detailed
+    check will be done on server side.
+    Returns None on success; raises ValueError on error.
+
+    :param xid: identifier to check
+    :type xid: basestring
+    :rtype NoneType
+    """
+    if '' != xid.lstrip(ID_ALLOWED_CHARS):
+        raise ValueError('Incorrect identifier: ' + str(xid))
 
 
 class VscApiClient():
@@ -131,6 +151,8 @@ class VscApiClient():
         """
         if user_id is None:
             user_id = uuid.uuid4().hex
+        else:
+            checkIdOrRaise(user_id)
         url_path = 'aaa/user/{0}'.format(user_id)
         self._request('PUT', url_path, {'create': 1}, data)
         return user_id
@@ -144,6 +166,7 @@ class VscApiClient():
         :param data: user data dictionary.
         :type data: dict
         """
+        checkIdOrRaise(user_id)
         self._request('PUT', 'aaa/user/{0}'.format(user_id), None, data)
 
     def aaaPasswd(self, password):
@@ -180,6 +203,7 @@ class VscApiClient():
         :type user_id: string
         :rtype: dict
         """
+        checkIdOrRaise(user_id)
         return self._request('GET', 'aaa/user/{0}'.format(user_id))
 
     def aaaAddRole(self, data, role_id = None):
@@ -195,6 +219,8 @@ class VscApiClient():
         """
         if role_id is None:
             role_id = uuid.uuid4().hex
+        else:
+            checkIdOrRaise(role_id)
         url_path = 'aaa/role/{0}'.format(role_id)
         self._request('PUT', url_path, {'create': 1}, data)
         return role_id
@@ -208,6 +234,7 @@ class VscApiClient():
         :param data: user data dictionary.
         :type data: dict
         """
+        checkIdOrRaise(role_id)
         self._request('PUT', 'aaa/role/{0}'.format(role_id), None, data)
 
     def aaaDelRole(self, role_id):
@@ -217,6 +244,7 @@ class VscApiClient():
         :param role_id: UUID of the role.
         :type role_id: string
         """
+        checkIdOrRaise(role_id)
         self._request('DELETE', 'aaa/role/{0}'.format(role_id))
 
     def aaaListRoles(self, format = 'ids_only'):
@@ -241,6 +269,7 @@ class VscApiClient():
         :type role_id: string
         :rtype: dict
         """
+        checkIdOrRaise(role_id)
         return self._request('GET', 'aaa/role/{0}'.format(role_id))
 
     def aaaAddRoleRoleRelation(self, major_id, minor_id):
@@ -254,6 +283,8 @@ class VscApiClient():
         :param minor_id: UUID of the minor role.
         :type minor_id: string
         """
+        checkIdOrRaise(major_id)
+        checkIdOrRaise(minor_id)
         url_path = 'aaa/role/{0}/minors/{1}'.format(major_id, minor_id)
         self._request('PUT', url_path)
 
@@ -268,6 +299,8 @@ class VscApiClient():
         :param minor_id: UUID of the minor role.
         :type minor_id: string
         """
+        checkIdOrRaise(major_id)
+        checkIdOrRaise(minor_id)
         url_path = 'aaa/role/{0}/minors/{1}'.format(major_id, minor_id)
         self._request('DELETE', url_path)
 
@@ -286,6 +319,7 @@ class VscApiClient():
         :param minor_ids: UUIDs of the minor roles.
         :type minor_ids: list of strings
         """
+        checkIdOrRaise(major_id)
         url_path = 'aaa/role/{0}/minors'.format(major_id)
         self._request('PUT', url_path, None, minor_ids)
 
@@ -297,6 +331,7 @@ class VscApiClient():
         :type role_id: string
         :rtype: list of UUIDs (list of strings)
         """
+        checkIdOrRaise(major_id)
         url_path = 'aaa/role/{0}/minors'.format(major_id)
         return self._request('GET', url_path)
 
@@ -308,6 +343,7 @@ class VscApiClient():
         :type role_id: string
         :rtype: list of UUIDs (list of strings)
         """
+        checkIdOrRaise(minor_id)
         url_path = 'aaa/role/{0}/majors'.format(minor_id)
         return self._request('GET', url_path)
 
@@ -322,6 +358,8 @@ class VscApiClient():
         :param role_id: UUID of the role.
         :type role_id: string
         """
+        checkIdOrRaise(user_id)
+        checkIdOrRaise(role_id)
         url_path = 'aaa/user/{0}/roles/{1}'.format(user_id, role_id)
         self._request('PUT', url_path)
 
@@ -335,6 +373,8 @@ class VscApiClient():
         :param role_id: UUID of the role.
         :type role_id: string
         """
+        checkIdOrRaise(user_id)
+        checkIdOrRaise(role_id)
         url_path = 'aaa/user/{0}/roles/{1}'.format(user_id, role_id)
         self._request('DELETE', url_path)
 
@@ -353,6 +393,7 @@ class VscApiClient():
         :param role_ids: UUIDs of the roles.
         :type role_ids: list of strings
         """
+        checkIdOrRaise(user_id)
         url_path = 'aaa/user/{0}/roles'.format(user_id)
         self._request('PUT', url_path, None, role_ids)
 
@@ -364,6 +405,7 @@ class VscApiClient():
         :type user_id: string
         :rtype: list of UUIDs (list of strings)
         """
+        checkIdOrRaise(user_id)
         url_path = 'aaa/user/{0}/roles'.format(user_id)
         return self._request('GET', url_path)
 
@@ -375,6 +417,7 @@ class VscApiClient():
         :type role_id: string
         :rtype: list of UUIDs (list of strings)
         """
+        checkIdOrRaise(role_id)
         url_path = 'aaa/role/{0}/users'.format(role_id)
         return self._request('GET', url_path)
 
@@ -392,6 +435,8 @@ class VscApiClient():
         """
         if job_id is None:
             job_id = uuid.uuid4().hex + uuid.uuid4().hex
+        else:
+            checkIdOrRaise(job_id)
         url_path = 'job/{0}'.format(job_id)
         self._request('PUT', url_path, {'create': 1}, data)
         return job_id
@@ -409,6 +454,7 @@ class VscApiClient():
         :type format: 'basic' or 'full'
         :rtype: dict
         """
+        checkIdOrRaise(job_id)
         if format not in ('basic', 'full'):
             raise BadArgError('Bad format value')
         url_path = 'job/{0}'.format(job_id)
@@ -432,6 +478,7 @@ class VscApiClient():
         :param force: force stop stalled job.
         :type force: boolean
         """
+        checkIdOrRaise(job_id)
         entity = {}
         if saved_description is not None:
             entity['description'] = saved_description
@@ -514,6 +561,7 @@ class VscApiClient():
         :param tcp_ports: TCP port numbers to forward.
         :type tcp_ports: list of integers between 1 and 65535
         """
+        checkIdOrRaise(job_id)
         url_path = '/job/{0}/fwd'.format(job_id)
         self._request('PUT', url_path, None, tcp_ports)
 
@@ -527,6 +575,7 @@ class VscApiClient():
             where public_ip is string, public_port and
             destination_port are integers.
         """
+        checkIdOrRaise(job_id)
         url_path = '/job/{0}/fwd'.format(job_id)
         return self._request('GET', url_path)
 
@@ -538,6 +587,7 @@ class VscApiClient():
         :type package_id: string
         :rtype: dict
         """
+        checkIdOrRaise(package_id)
         return self._request('GET', 'package/{0}'.format(package_id))
 
     def packageCreate(self, data, package_id = None):
@@ -553,6 +603,8 @@ class VscApiClient():
         """
         if package_id is None:
             package_id = uuid.uuid4().hex
+        else:
+            checkIdOrRaise(package_id)
         url_path = 'package/{0}'.format(package_id)
         self._request('PUT', url_path, {'create': 1}, data)
         return package_id
@@ -566,6 +618,7 @@ class VscApiClient():
         :param data: package metainfo.
         :type data: dict
         """
+        checkIdOrRaise(package_id)
         self._request('PUT', 'package/{0}'.format(package_id), None, data)
 
     def packageDel(self, package_id):
@@ -575,6 +628,7 @@ class VscApiClient():
         :param package_id: UUID of the package.
         :type package_id: string
         """
+        checkIdOrRaise(package_id)
         self._request('DELETE', 'package/{0}'.format(package_id))
 
     def packageList(self, format = 'full'):
@@ -627,6 +681,7 @@ class VscApiClient():
         :type image_id: string
         :rtype: dict
         """
+        checkIdOrRaise(image_id)
         return self._request('GET', 'image/{0}'.format(image_id))
 
     def imageGenerateUrl(self, image_id):
@@ -638,6 +693,7 @@ class VscApiClient():
         :type image_id: string or None.
         :rtype: string
         """
+        checkIdOrRaise(image_id)
         return self._request('GET', 'image/{0}/genurl'.format(image_id))
 
     def imageCreate(self, data, image_id = None):
@@ -653,6 +709,8 @@ class VscApiClient():
         """
         if image_id is None:
             image_id = uuid.uuid4().hex
+        else:
+            checkIdOrRaise(image_id)
         url_path = 'image/{0}'.format(image_id)
         self._request('PUT', url_path, {'create': 1}, data)
         return image_id
@@ -666,6 +724,7 @@ class VscApiClient():
         :param data: image metainfo.
         :type data: dict
         """
+        checkIdOrRaise(image_id)
         self._request('PUT', 'image/{0}'.format(image_id), None, data)
 
     def imageDel(self, image_id):
@@ -675,6 +734,7 @@ class VscApiClient():
         :param image_id: UUID of the image.
         :type image_id: string
         """
+        checkIdOrRaise(image_id)
         self._request('DELETE', 'image/{0}'.format(image_id))
 
     def imageList(self, format = 'full'):
@@ -745,6 +805,8 @@ class VscApiClient():
         """
         if job_profile_id is None:
             job_profile_id = uuid.uuid4().hex
+        else:
+            checkIdOrRaise(job_profile_id)
         url = 'job_profile/{0}'.format(job_profile_id)
         params = {'create': 1, 'public': int(is_public)}
         self._request('PUT', url, params, job_profile_data)
@@ -762,6 +824,7 @@ class VscApiClient():
         :param is_public: make the job profile public or not.
         :type is_public: boolean
         """
+        checkIdOrRaise(job_profile_id)
         url = 'job_profile/{0}'.format(job_profile_id)
         params = {'public': is_public}
         self._request('PUT', url, params, job_profile_data)
@@ -773,6 +836,7 @@ class VscApiClient():
         :param job_profile_id: UUID of job profile to delete.
         :type job_profile_id: string
         """
+        checkIdOrRaise(job_profile_id)
         self._request('DELETE', 'job_profile/' + job_profile_id)
 
     def jobProfileList(self, format = 'full'):
