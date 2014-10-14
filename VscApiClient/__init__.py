@@ -485,8 +485,8 @@ class VscApiClient():
         if save_homefs:
             entity['save_homefs'] = 1
         params = {'save': int(save), 'force': int(force)}
-        url = 'job/{0}'.format(job_id)
-        self._request('STOP', url, params, entity)
+        url = 'job/{0}/stop'.format(job_id)
+        self._request('POST', url, params, entity)
 
     def jobList(self, format = 'basic', historic = False):
         """
