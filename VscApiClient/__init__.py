@@ -975,6 +975,8 @@ class VscApiClient():
     def _request(self, method, path, params = None, data = None):
         """
         Do the request to a VSC API Server.
+        Returns response body decoded from JSON (normally, this is dict
+        aka JSON object) or None, if no body is got.
 
         :param method: HTTP method to use.
         :type method: string
@@ -985,7 +987,7 @@ class VscApiClient():
         :param data: dictionary with extra datum. Will be passed
             to the server as HTTP message body.
         :type data: dict or None
-        :rtype: dict
+        :rtype: any
         """
         host, port = random.choice(self.__addrs)
         if self.__secure:
