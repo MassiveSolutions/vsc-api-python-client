@@ -1,3 +1,15 @@
+python-vsc (0.7.0-1) unstable; urgency=low
+
+  * Fix forming request URLs.
+  * Fix sending request body.
+  * Add handling of image and package ACLs.
+  * Fix response body parsing independently from HTTP response code.
+  * jobStop: change HTTP method to POST.
+  * jobStop: support saved_name in analogy to saved_description.
+  * Add support for authentication by cookie.
+
+ -- Valentin Nechayev <netch@massivesolutions.eu>  Mon, 10 Nov 2014 12:07:00 +0200
+
 python-vsc (0.6.0-1) unstable; urgency=low
 
   * job stop: add support for PaaS cluster save.
