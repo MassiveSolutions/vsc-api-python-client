@@ -52,6 +52,8 @@ class VscApiClient():
     __username = None
     __password = None
     __user_id = None
+    __cookie_key = None
+    __stale_cookie_auth = False
     __timeout = DEFAULT_TIMEOUT
 
     def __init__(self, username = None, password = None,
@@ -112,6 +114,7 @@ class VscApiClient():
             self.__user_id = None
         self.__username = username
         self.__password = password
+        self.__stale_cookie_auth = True
 
     def dropAuth(self):
         """
@@ -120,10 +123,35 @@ class VscApiClient():
         self.__username = None
         self.__password = None
         self.__user_id = None
+        self.__stale_cookie_auth = True
+
+    def getCookieKey(self):
+        """
+        Diagnostics request to get cookie key.
+        (Has no sense except for server testing.)
+        """
+        return self.__cookie_key
 
     # -----------------------------------------------------------------
     # VSC API bindings
     # -----------------------------------------------------------------
+
+    def login(self):
+        """
+        Send login request.
+        This request does really nothing except the credentials
+        (login+password) are sent even if cookie is known.
+        The expected result is that cookie is got and learned.
+        """
+        return self._request('POST', '/login', reauth = True)
+
+    def logout(self):
+        """
+        Send logout request.
+        A server shall drop authentication connected to the cookie,
+        if any is sent.
+        """
+        return self._request('POST', '/logout')
 
     def whoami(self):
         """
@@ -972,9 +1000,12 @@ class VscApiClient():
     # Internal methods
     # -----------------------------------------------------------------
 
-    def _request(self, method, path, params = None, data = None):
+    def _request(self, method, path, params = None, data = None,
+            reauth = False):
         """
         Do the request to a VSC API Server.
+        Returns response body decoded from JSON (normally, this is dict
+        aka JSON object) or None, if no body is got.
 
         :param method: HTTP method to use.
         :type method: string
@@ -985,7 +1016,9 @@ class VscApiClient():
         :param data: dictionary with extra datum. Will be passed
             to the server as HTTP message body.
         :type data: dict or None
-        :rtype: dict
+        :param reauth: request to redo authentication
+        :type reauth: bool
+        :rtype: any
         """
         host, port = random.choice(self.__addrs)
         if self.__secure:
@@ -997,10 +1030,14 @@ class VscApiClient():
         request = urllib2.Request(url)
         request.get_method = lambda: method
         request.add_header('User-Agent', 'VscApiPythonClient')
-        if self.__username is not None and self.__password is not None:
+        if self.__username is not None and self.__password is not None and \
+                (reauth or self.__cookie_key is None or \
+                 self.__stale_cookie_auth):
             plain_ident = '{0}:{1}'.format(self.__username, self.__password)
             encoded_ident = base64.b64encode(plain_ident)
             request.add_header('Authorization', 'Basic ' + encoded_ident)
+        if self.__cookie_key:
+            request.add_header('Cookie', 'auth=%s' % (self.__cookie_key,))
         if data is not None:
             request.add_header('Content-Type', 'application/json')
             body = json.dumps(data)
@@ -1013,6 +1050,12 @@ class VscApiClient():
         user_id = reply.headers.get('X-VSC-User-ID')
         if user_id is not None:
             self.__user_id = user_id
+        rclist = reply.headers.get('Set-Cookie', '').split(';')
+        rc_auth_keys = [x[1] for x in [y.split('=', 1) for y in rclist] if
+            x[0].lower() == 'auth']
+        if rc_auth_keys:
+            self.__cookie_key = rc_auth_keys[0]
+            self.__stale_cookie_auth = False
         reply_data = reply.read()
         if reply_data:
             return json.loads(reply_data)
