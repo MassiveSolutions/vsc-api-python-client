@@ -1,4 +1,4 @@
-python-vsc (0.7.0-1) unstable; urgency=low
+python-vsc (0.8.0-1) unstable; urgency=low
 
   * Fix forming request URLs.
   * Fix sending request body.
@@ -8,7 +8,7 @@ python-vsc (0.7.0-1) unstable; urgency=low
   * jobStop: support saved_name in analogy to saved_description.
   * Add support for authentication by cookie.
 
- -- Valentin Nechayev <netch@massivesolutions.eu>  Mon, 10 Nov 2014 12:07:00 +0200
+ -- Valentin Nechayev <netch@massivesolutions.eu>  Tue, 18 Nov 2014 17:17:00 +0200
 
 python-vsc (0.6.0-1) unstable; urgency=low
 
